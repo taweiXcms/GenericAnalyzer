@@ -1,0 +1,22 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<use name="CommonTools/UtilAlgos"/>
+
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/JetReco"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/HiGenData"/>
+
+<use   name="SimDataFormats/Vertex"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="SimTracker/TrackerHitAssociation"/>
+<use   name="SimTracker/TrackAssociation"/>
+<use   name="SimTracker/Records"/>
+
+<flags EDM_PLUGIN="1"/>
