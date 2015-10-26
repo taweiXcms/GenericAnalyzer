@@ -44,7 +44,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+//#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 //
 // class declaration
 //
@@ -131,8 +131,8 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    evt = mc->GetEvent();
 		for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it){
 	    	if((*it)->status() == 1 || (*it)->status() == 2){
-	        int pdg_id = (*it)->pdg_id();
-	        float eta = (*it)->momentum().eta();
+	        //int pdg_id = (*it)->pdg_id();
+	        //float eta = (*it)->momentum().eta();
 			}
 		}
 	}
@@ -148,7 +148,7 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    for(unsigned int i = 0; i < parts->size(); ++i){
 	    	const reco::GenParticle& p = (*parts)[i];
 	        //if(p.status() != 1 && p.status() != 2) continue;
-	        float pt = p.pt();
+	        //float pt = p.pt();
 	        int pdg = p.pdgId();
 
 			//Printing out gen info
@@ -211,7 +211,7 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    iEvent.getByLabel(jetLabel_,jets);
 	    for(unsigned int j = 0 ; j < jets->size(); ++j){
 	       const reco::GenJet& jet = (*jets)[j];
-	       float jet_p = jet.p();
+	       //float jet_p = jet.p();
 		}
 	}
 
@@ -249,6 +249,7 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
 
 	//Do SIM track. Developing
+	/*
 	if(0){
 	    Handle<vector<reco::Track> > etracks;
 	    iEvent.getByLabel(trackLabel_, etracks);
@@ -287,6 +288,7 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			}
 		}
 	}
+	*/
 
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
