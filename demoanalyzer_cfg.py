@@ -20,7 +20,13 @@ process.source = cms.Source("PoolSource",
 #'file:/afs/cern.ch/work/t/twang/MITHIG/GenHIBmeson_20131220/BoostGen5GeVB_20140214/PYTHIA_sub/B2Phi/PYTHIA6_BsJpsiPhi_TuneZ2star_2760GeV_GENSIM.root'
 
 #'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/ourCustomiizeFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BuKp_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
-'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BuKp_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BuKp_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BdKstar_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BsPhi_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
+
+'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pythia8_BuToJpsiK_TuneCUEP8M1_5020GeV_BPHMod_filter_cfi_py_GEN_SIM_PU.root'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/'
     )
 # skipEvents = cms.untracked.uint32(39)
 )

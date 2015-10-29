@@ -80,6 +80,9 @@ class GenericAnalyzer : public edm::EDAnalyzer {
 	//My output histogram
 	TH1F *h_mass1,*h_mass2;
 	TH1F *Bpt, *Beta;
+	TH1F *Bupt, *Bueta;
+	TH1F *Bdpt, *Bdeta;
+	TH1F *Bspt, *Bseta;
 	TH1F *genmu_eta;
 	TH1F *gensig_eta;
 	TH1F *genemb_eta;
@@ -106,6 +109,12 @@ GenericAnalyzer::GenericAnalyzer(const edm::ParameterSet& iConfig)
 	h_mass2 = fs->make<TH1F>("h_mass2" , "h_mass2" , 3200 , 0. , 160. );
 	Bpt = fs->make<TH1F>("Bpt" , "Bpt" , 200 , 0. , 20. );
 	Beta = fs->make<TH1F>("Beta" , "Beta" , 200 , -6. , 6. );
+	Bupt = fs->make<TH1F>("Bupt" , "Bpt" , 200 , 0. , 20. );
+	Bueta = fs->make<TH1F>("Bueta" , "Beta" , 200 , -6. , 6. );
+	Bdpt = fs->make<TH1F>("Bdpt" , "Bpt" , 200 , 0. , 20. );
+	Bdeta = fs->make<TH1F>("Bdeta" , "Beta" , 200 , -6. , 6. );
+	Bspt = fs->make<TH1F>("Bspt" , "Bpt" , 200 , 0. , 20. );
+	Bseta = fs->make<TH1F>("Bseta" , "Beta" , 200 , -6. , 6. );
 	genmu_eta = fs->make<TH1F>("genmu_eta" , "genmu_eta" , 200 , -6. , 6. );
 	gensig_eta = fs->make<TH1F>("gensig_eta" , "gensig_eta" , 200 , -6. , 6. );
 	genemb_eta = fs->make<TH1F>("genemb_eta" , "genemb_eta" , 200 , -10. , 10. );
@@ -141,9 +150,9 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    edm::Handle<reco::GenParticleCollection> parts;
 	    iEvent.getByLabel(genLabel_,parts);
 		bool isSig = 0;
-        for(unsigned int i = 0; i < parts->size(); ++i){
-            const reco::GenParticle& p = (*parts)[i];
-		}
+	    bool GetBpSignal = false;
+	    bool GetB0Signal = false;
+	    bool GetBsSignal = false;
 		////My analysis
 	    for(unsigned int i = 0; i < parts->size(); ++i){
 	    	const reco::GenParticle& p = (*parts)[i];
@@ -170,15 +179,60 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 				}
 			}
 
-			//Saving B info
+			//Saving B+ info
 			if(abs(pdg) == 521){	
-			//if(abs(pdg) == 511){	
+				if(p.numberOfDaughters()>1)
 				if(abs(p.daughter(0)->pdgId()) == 443) 
 				if(abs(p.daughter(1)->pdgId()) == 321) 
-				//if(abs(p.daughter(1)->pdgId()) == 313) 
+				if(p.daughter(0)->numberOfDaughters()>1)
+				if(abs(p.daughter(0)->daughter(0)->pdgId())==13)
+				if(abs(p.daughter(0)->daughter(1)->pdgId())==13)
 				{
 					Bpt->Fill(p.pt());
 					Beta->Fill(p.eta());
+					Bupt->Fill(p.pt());
+					Bueta->Fill(p.eta());
+					GetBpSignal = true;
+				}
+			}
+
+			//Saving B0 info
+            if(abs(pdg) == 511){
+				if(p.numberOfDaughters()>1)
+				if(abs(p.daughter(0)->pdgId()) == 443) 
+				if(p.daughter(0)->numberOfDaughters()>1)
+				if(abs(p.daughter(0)->daughter(0)->pdgId())==13)
+				if(abs(p.daughter(0)->daughter(1)->pdgId())==13)
+				if(abs(p.daughter(1)->pdgId()) == 313) 
+				if(p.daughter(1)->numberOfDaughters()>1)
+				if(abs(p.daughter(1)->daughter(0)->pdgId())==211 || abs(p.daughter(1)->daughter(0)->pdgId())==321)
+				if(abs(p.daughter(1)->daughter(1)->pdgId())==211 || abs(p.daughter(1)->daughter(1)->pdgId())==321)
+				{
+					Bpt->Fill(p.pt());
+					Beta->Fill(p.eta());
+					Bdpt->Fill(p.pt());
+					Bdeta->Fill(p.eta());
+					GetB0Signal = true;
+				}
+			}
+
+			//Saving Bs info
+            if(abs(pdg) == 531){
+				if(p.numberOfDaughters()>1)
+				if(abs(p.daughter(0)->pdgId()) == 443) 
+				if(p.daughter(0)->numberOfDaughters()>1)
+				if(abs(p.daughter(0)->daughter(0)->pdgId())==13)
+				if(abs(p.daughter(0)->daughter(1)->pdgId())==13)
+				if(abs(p.daughter(1)->pdgId()) == 333) 
+				if(p.daughter(1)->numberOfDaughters()>1)
+				if(abs(p.daughter(1)->daughter(0)->pdgId())==321)
+				if(abs(p.daughter(1)->daughter(1)->pdgId())==321)
+				{
+					Bpt->Fill(p.pt());
+					Beta->Fill(p.eta());
+					Bspt->Fill(p.pt());
+					Bseta->Fill(p.eta());
+					GetBsSignal = true;
 				}
 			}
 			//Saving muon eta
@@ -188,13 +242,13 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 				genmu_eta->Fill(p.eta());
 			}
 
-			////Selecting only signal particles
+			////filling only signal particles
 			//B+
 			if(abs(pdg) == 521 || abs(pdg) == 13 || abs(pdg) == 443){
 				if(abs(pdg) == 521 && abs(p.daughter(0)->pdgId()) == 443) isSig = 1;		
 				if(abs(pdg) == 443 && abs(p.mother()->pdgId()) == 521) isSig = 1;
 				if(abs(pdg) == 13 && abs(p.mother()->pdgId()) == 443) if(abs(p.mother()->mother()->pdgId()) == 521) isSig = 1;
-			}//B+
+			}
 			if(p.pt() > 0){
 				if(isSig == 1)	{
 					gensig_eta->Fill(p.eta());
@@ -204,6 +258,12 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			}
 			isSig = 0;
 		}
+		if(GetBpSignal) cout<<"GetBpSignal"<<endl;
+		else cout<<"NoBpSignal"<<endl;
+		if(GetB0Signal) cout<<"GetB0Signal"<<endl;
+		else cout<<"NoB0Signal"<<endl;
+		if(GetBsSignal) cout<<"GetBsSignal"<<endl;
+		else cout<<"NoBsSignal"<<endl;
 	}
 
 	if(doGenJet_){
