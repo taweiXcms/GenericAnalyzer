@@ -66,16 +66,23 @@ class GenericAnalyzer : public edm::EDAnalyzer {
 	virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 	
 	// ----------member data ---------------------------
-    edm::InputTag genLabel_;
-    edm::InputTag muonLabel_;
-    edm::InputTag trackLabel_;
-    edm::InputTag jetLabel_;
+
+    edm::EDGetTokenT< reco::GenParticleCollection > genLabel_;
+    edm::EDGetTokenT< reco::MuonCollection > muonLabel_;
+    edm::EDGetTokenT< reco::TrackCollection > trackLabel_;
+    edm::EDGetTokenT< std::vector<reco::GenJet> > jetLabel_;
+//    edm::InputTag genLabel_;
+//    edm::InputTag muonLabel_;
+//    edm::InputTag trackLabel_;
+//    edm::InputTag jetLabel_;
 
     bool doHepMC_; 
     bool doGenParticle_; 
     bool doGenJet_; 
     bool doRecoTrk_; 
     bool doRecoMuon_; 
+
+    std::vector<int> PIDtoPrint_;
 
 	//My output histogram
 	TH1F *h_mass1,*h_mass2;
@@ -91,16 +98,21 @@ class GenericAnalyzer : public edm::EDAnalyzer {
 GenericAnalyzer::GenericAnalyzer(const edm::ParameterSet& iConfig)
 {
 	//now do what ever initialization is needed
-    genLabel_           = iConfig.getParameter<edm::InputTag>("GenLabel");
-    trackLabel_         = iConfig.getParameter<edm::InputTag>("TrackLabel");
-    muonLabel_          = iConfig.getParameter<edm::InputTag>("MuonLabel");
-    jetLabel_          = iConfig.getParameter<edm::InputTag>("JetLabel");
+	genLabel_ = consumes< reco::GenParticleCollection >(iConfig.getParameter<edm::InputTag>("GenLabel"));
+	muonLabel_ = consumes< reco::MuonCollection >(iConfig.getParameter<edm::InputTag>("MuonLabel"));
+	trackLabel_ = consumes< reco::TrackCollection >(iConfig.getParameter<edm::InputTag>("TrackLabel"));
+	jetLabel_ = consumes< std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("JetLabel"));
+    //genLabel_           = iConfig.getParameter<edm::InputTag>("GenLabel");
+    //trackLabel_         = iConfig.getParameter<edm::InputTag>("TrackLabel");
+    //muonLabel_          = iConfig.getParameter<edm::InputTag>("MuonLabel");
+    //jetLabel_          = iConfig.getParameter<edm::InputTag>("JetLabel");
 
     doHepMC_ = iConfig.getUntrackedParameter<bool>("doHepMC",true);
     doGenParticle_ = iConfig.getUntrackedParameter<bool>("doGenParticle",true);
-    doGenJet_ = iConfig.getUntrackedParameter<bool>("doGenJet",true);
-    doRecoTrk_ = iConfig.getUntrackedParameter<bool>("doRecoTrk",true);
     doRecoMuon_ = iConfig.getUntrackedParameter<bool>("doRecoMuon",true);
+    doRecoTrk_ = iConfig.getUntrackedParameter<bool>("doRecoTrk",true);
+    doGenJet_ = iConfig.getUntrackedParameter<bool>("doGenJet",true);
+    PIDtoPrint_ = iConfig.getParameter<std::vector<int> >("PIDtoPrint");
 	edm::Service<TFileService> fs;
 
 	//My output histogram
@@ -148,12 +160,16 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	if(doGenParticle_){
 	    edm::Handle<reco::GenParticleCollection> parts;
-	    iEvent.getByLabel(genLabel_,parts);
+	    //iEvent.getByLabel(genLabel_,parts);
+	    iEvent.getByToken(genLabel_,parts);
 		bool isSig = 0;
 	    bool GetBpSignal = false;
 	    bool GetB0Signal = false;
 	    bool GetBsSignal = false;
 		////My analysis
+		std::cout<<PIDtoPrint_.size()<<std::endl;
+		std::cout<<parts->size()<<std::endl;
+
 	    for(unsigned int i = 0; i < parts->size(); ++i){
 	    	const reco::GenParticle& p = (*parts)[i];
 	        //if(p.status() != 1 && p.status() != 2) continue;
@@ -161,11 +177,15 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	        int pdg = p.pdgId();
 
 			//Printing out gen info
+			bool toPrint = false;
+			for(unsigned int id = 0; id < PIDtoPrint_.size(); id++){
+				if(abs(pdg) == PIDtoPrint_[id] ) toPrint = true;
+            }
+
 			//if(abs(pdg) == 531 || abs(pdg) == 521 || abs(pdg) == 511 || (abs(pdg) == 11 && p.mother()->pdgId() == 310) || (abs(pdg) == 310 && abs(p.mother()->pdgId()) == 311) ){
-			if(abs(pdg) == 531 || abs(pdg) == 521 || abs(pdg) == 511 ){
-			//if(abs(pdg) == 511 ){
 			//if(abs(int(pdg/100) % 100) == 5){
-			//if(1){
+			
+			if(toPrint){
 				if(p.numberOfMothers() != 0) cout<<"======my mother Id/pt: "<<p.mother()->pdgId()<<" / "<<p.mother()->pt()<<endl;
 				int ndau = p.numberOfDaughters();
 				cout<<"I am(pdg/status/pt/#daughters): "<<pdg<<" / "<<p.status()<<" / "<<p.pt()<<" / "<<ndau<<endl;
@@ -238,7 +258,6 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			//Saving muon eta
 			if(abs(pdg) == 13){	
 				if(abs(p.mother()->pdgId()) == 443) if(abs(p.mother()->mother()->pdgId()) == 521)//B+
-				//if(abs(p.mother()->pdgId()) == 443) if(abs(p.mother()->mother()->pdgId()) == 511)//B0
 				genmu_eta->Fill(p.eta());
 			}
 
@@ -257,7 +276,9 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 				else if(p.status() == 1) genemb_eta->Fill(p.eta());
 			}
 			isSig = 0;
+
 		}
+
 		if(GetBpSignal) cout<<"GetBpSignal"<<endl;
 		else cout<<"NoBpSignal"<<endl;
 		if(GetB0Signal) cout<<"GetB0Signal"<<endl;
@@ -268,7 +289,8 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	if(doGenJet_){
 	    edm::Handle<vector<reco::GenJet> > jets;
-	    iEvent.getByLabel(jetLabel_,jets);
+	    //iEvent.getByLabel(jetLabel_,jets);
+	    iEvent.getByToken(jetLabel_,jets);
 	    for(unsigned int j = 0 ; j < jets->size(); ++j){
 	       const reco::GenJet& jet = (*jets)[j];
 	       //float jet_p = jet.p();
@@ -277,7 +299,8 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	if(doRecoTrk_){
 		Handle<reco::TrackCollection> tracks;
-		iEvent.getByLabel(trackLabel_, tracks);
+		//iEvent.getByLabel(trackLabel_, tracks);
+		iEvent.getByToken(trackLabel_, tracks);
 		for( reco::TrackCollection::const_iterator it1 = tracks->begin();
 			it1 != tracks->end(); it1++ ) {
 			for( reco::TrackCollection::const_iterator it2 = tracks->begin();
@@ -293,7 +316,8 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	
 	if(doRecoMuon_){
 		Handle<reco::MuonCollection> muons;
-		iEvent.getByLabel(muonLabel_, muons);
+		//iEvent.getByLabel(muonLabel_, muons);
+		iEvent.getByToken(muonLabel_, muons);
 		for( reco::MuonCollection::const_iterator it1 = muons->begin();
 			it1 != muons->end(); it1++ ) {
 			//std::cout<<"px:"<<it1->px()<<std::endl;
@@ -312,10 +336,12 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	/*
 	if(0){
 	    Handle<vector<reco::Track> > etracks;
-	    iEvent.getByLabel(trackLabel_, etracks);
+	    //iEvent.getByLabel(trackLabel_, etracks);
+	    iEvent.getByToken(trackLabel_, etracks);
 	    Handle<TrackingParticleCollection>  TPCollectionHfake;		
 	    Handle<edm::View<reco::Track> >  trackCollection;
-	    iEvent.getByLabel(trackLabel_, trackCollection);
+	    //iEvent.getByLabel(trackLabel_, trackCollection);
+	    iEvent.getByToken(trackLabel_, trackCollection);
 	    ESHandle<TrackAssociatorBase> theAssociator;
 	    const TrackAssociatorByHits *theAssociatorByHits;
 	    reco::RecoToSimCollection recSimColl;
@@ -353,7 +379,8 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+   //iEvent.getByLabel("example",pIn);
+   iEvent.getByToken("example",pIn);
 #endif
    
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
