@@ -66,7 +66,8 @@ class GenericAnalyzer : public edm::EDAnalyzer {
 	virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 	
 	// ----------member data ---------------------------
-    edm::InputTag genLabel_;
+//    edm::InputTag genLabel_;
+    edm::EDGetTokenT< reco::GenParticleCollection > genLabel_;
     edm::InputTag muonLabel_;
     edm::InputTag trackLabel_;
     edm::InputTag jetLabel_;
@@ -91,7 +92,8 @@ class GenericAnalyzer : public edm::EDAnalyzer {
 GenericAnalyzer::GenericAnalyzer(const edm::ParameterSet& iConfig)
 {
 	//now do what ever initialization is needed
-    genLabel_           = iConfig.getParameter<edm::InputTag>("GenLabel");
+//    genLabel_           = iConfig.getParameter<edm::InputTag>("GenLabel");
+    genLabel_           = consumes< reco::GenParticleCollection >(iConfig.getParameter<edm::InputTag>("GenLabel"));
     trackLabel_         = iConfig.getParameter<edm::InputTag>("TrackLabel");
     muonLabel_          = iConfig.getParameter<edm::InputTag>("MuonLabel");
     jetLabel_          = iConfig.getParameter<edm::InputTag>("JetLabel");
@@ -147,12 +149,17 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
 
 	if(doGenParticle_){
-	    edm::Handle<reco::GenParticleCollection> parts;
-	    iEvent.getByLabel(genLabel_,parts);
+//	    edm::Handle<reco::GenParticleCollection> parts;
+//	    iEvent.getByLabel(genLabel_,parts);
+        edm::Handle<reco::GenParticleCollection> parts;
+        iEvent.getByToken(genLabel_, parts);
 		bool isSig = 0;
+	    bool GetGammaSignal = false;
 	    bool GetBpSignal = false;
 	    bool GetB0Signal = false;
 	    bool GetBsSignal = false;
+	    bool GetD0Signal = false;
+	    bool GetDsSignal = false;
 		////My analysis
 	    for(unsigned int i = 0; i < parts->size(); ++i){
 	    	const reco::GenParticle& p = (*parts)[i];
@@ -162,8 +169,9 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 			//Printing out gen info
 			//if(abs(pdg) == 531 || abs(pdg) == 521 || abs(pdg) == 511 || (abs(pdg) == 11 && p.mother()->pdgId() == 310) || (abs(pdg) == 310 && abs(p.mother()->pdgId()) == 311) ){
-			if(abs(pdg) == 531 || abs(pdg) == 521 || abs(pdg) == 511 ){
-			//if(abs(pdg) == 511 ){
+			//if(abs(pdg) == 531 || abs(pdg) == 521 || abs(pdg) == 511 ){
+			//if(abs(pdg) == 421 || abs(pdg) == 22){
+			if(abs(pdg) == 431){
 			//if(abs(int(pdg/100) % 100) == 5){
 			//if(1){
 				if(p.numberOfMothers() != 0) cout<<"======my mother Id/pt: "<<p.mother()->pdgId()<<" / "<<p.mother()->pt()<<endl;
@@ -176,6 +184,42 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	                    cout<< "   daughter: " << MyDau->pdgId() << " / " << MyDau->status() <<" / "<<MyDau->pt()<<" / "<<ndaudau<<endl;
 						ShowMyOffspring(MyDau, 2);
 					}
+				}
+			}
+			//Saving Gamma info
+//			if(abs(pdg) == 22){	
+			if(abs(pdg) == 22 && p.pt()>2.){	
+					GetGammaSignal = true;
+			}
+
+			//Saving D0 info
+			if(abs(pdg) == 421){	
+				if(p.numberOfDaughters()>1)
+				if(abs(p.daughter(0)->pdgId()) == 321) 
+				if(abs(p.daughter(1)->pdgId()) == 211) 
+				{
+					Bpt->Fill(p.pt());
+					Beta->Fill(p.eta());
+					Bupt->Fill(p.pt());
+					Bueta->Fill(p.eta());
+					GetD0Signal = true;
+				}
+			}
+
+			//Saving Ds info
+			if(abs(pdg) == 431){	
+				if(p.numberOfDaughters()>1)
+				if(abs(p.daughter(0)->pdgId()) == 333) 
+				if(abs(p.daughter(1)->pdgId()) == 211) 
+				if(p.daughter(0)->numberOfDaughters()>1)
+				if(abs(p.daughter(0)->daughter(0)->pdgId())==321)
+				if(abs(p.daughter(0)->daughter(1)->pdgId())==321)
+				{
+					Bpt->Fill(p.pt());
+					Beta->Fill(p.eta());
+					Bupt->Fill(p.pt());
+					Bueta->Fill(p.eta());
+					GetDsSignal = true;
 				}
 			}
 
@@ -258,6 +302,12 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			}
 			isSig = 0;
 		}
+		if(GetGammaSignal) cout<<"GetGammaSignal"<<endl;
+		else cout<<"NoGammaSignal"<<endl;
+		if(GetD0Signal) cout<<"GetD0Signal"<<endl;
+		else cout<<"NoD0Signal"<<endl;
+		if(GetDsSignal) cout<<"GetDsSignal"<<endl;
+		else cout<<"NoDsSignal"<<endl;
 		if(GetBpSignal) cout<<"GetBpSignal"<<endl;
 		else cout<<"NoBpSignal"<<endl;
 		if(GetB0Signal) cout<<"GetB0Signal"<<endl;
@@ -270,7 +320,7 @@ GenericAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    edm::Handle<vector<reco::GenJet> > jets;
 	    iEvent.getByLabel(jetLabel_,jets);
 	    for(unsigned int j = 0 ; j < jets->size(); ++j){
-	       const reco::GenJet& jet = (*jets)[j];
+	       //const reco::GenJet& jet = (*jets)[j];
 	       //float jet_p = jet.p();
 		}
 	}

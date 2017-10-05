@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
@@ -24,9 +24,10 @@ process.source = cms.Source("PoolSource",
 #'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BdKstar_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
 #'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pyquen_BsPhi_Unquenched_5020GeV_cfi_py_GEN_SIM_PU.root'
 
-'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pythia8_BuToJpsiK_TuneCUEP8M1_5020GeV_BPHMod_filter_cfi_py_GEN_SIM_PU.root'
-#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/'
-#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenHIBmeson_20131220/PbPbB_CMSSW75X_20151026/useOfficialFilter/CMSSW_7_5_3_patch1/src/test/Pythia8_BuToJpsiK_TuneCUEP8M1_5020GeV_BPHMod_filter_cfi_py_GEN_SIM_PU.root'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenSpace/pp5022017_20171001/CMSSW_9_2_12_patch1/src/test/Pythia8_prompt_D0pt0p0_Pthat100_TuneCUETP8M1_5020GeV_cfi_evtgen130_py_GEN_SIM.root'
+'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenSpace/pp5022017_20171001/CMSSW_9_2_12_patch1/src/test/Pythia8_prompt_Dspt0p0_Pthat0_TuneCUETP8M1_5020GeV_cfi_evtgen130_py_GEN_SIM.root'
+#'file:/afs/cern.ch/user/t/twang/work/MITHIG/GenSpace/pp5022017_20171001/CMSSW_9_2_12_patch1/src/testphoton/Pythia8_prompt_D0pt0p0_Gammapt15p0_Pthat0_TuneCUETP8M1_5020GeV_cfi_evtgen130_py_GEN_SIM.root'
     )
 # skipEvents = cms.untracked.uint32(39)
 )
